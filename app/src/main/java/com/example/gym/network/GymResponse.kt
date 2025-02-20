@@ -6,8 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GymResponse(
-    @SerialName("success")
     val success: Boolean,
-    @SerialName("result")
-    val result: List<Gym>
+    val message: String? = null,  // Optional field (only present when success = false)
+    val result: List<Gym>? = null // Optional field (only present when success = true)
 )

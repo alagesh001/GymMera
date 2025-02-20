@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +25,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,50 +45,76 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gym.AndroidViewModelProvider
 import kotlinx.coroutines.launch
 import com.example.gym.R
+import com.example.gym.navgraph.LocalGymViewModel
+import com.example.gym.viewmodel.GymViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    destination: () -> Unit,
+    destination: () -> Unit, // Navigation callback
     modifier: Modifier = Modifier
 ) {
+    val viewModel = LocalGymViewModel.current // Access the ViewModel through CompositionLocal
     var userId by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
 
+    // Observe ViewModel states
+    val gymResponse by viewModel.gymResponseState.collectAsState()
+    val errorMessage by viewModel.error.collectAsState()
+    val loginSuccess by viewModel.loginSuccess.collectAsState()
+
+    // Reset login success when entering this screen
+    SideEffect {
+        viewModel.resetLoginSuccess()  // Reset loginSuccess to false when the login screen is displayed
+    }
+
+    // Show Toast if error message exists
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Handle login success and navigate
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            destination() // Navigate to selection screen
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White) // Fallback background color
+            .background(Color.White)
     ) {
-        // Background Image
         Image(
-            painter = painterResource(id = R.drawable.gym_girl), // Replace with your image resource
+            painter = painterResource(id = R.drawable.gym_girl),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop // Crop the image to fit the screen
+            contentScale = ContentScale.Crop
         )
 
-        // Login Content at the Bottom
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(horizontal = 24.dp, vertical = 16.dp) // Added horizontal padding for side spacing
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .imePadding()
-                .align(Alignment.BottomCenter) // Align the Column at the bottom
-                .background(Color.White.copy(alpha = 0.9f), shape = RoundedCornerShape(16.dp)), // Semi-transparent white background with rounded corners
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
+                .align(Alignment.BottomCenter)
+                .background(Color.White.copy(alpha = 0.9f), shape = RoundedCornerShape(16.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Login",
                 style = MaterialTheme.typography.displayLarge,
-                color = Color.Black // Change to black for better visibility
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -93,36 +123,32 @@ fun LoginScreen(
                 value = userId,
                 onValueChange = { userId = it },
                 label = { Text("Mobile Number") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp) // Added internal horizontal padding for extra spacing
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 value = password,
                 onValueChange = { password = it.trim() },
                 label = { Text("Password") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp), // Added internal horizontal padding for extra spacing
-                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation()
             )
             Spacer(modifier = Modifier.height(24.dp))
+
             ElevatedButton(
                 onClick = {
-                    if (userId == "1" && password == "s") {
-                        destination() // Navigate to home or the next screen
+                    if (userId.isNotBlank() && password.isNotBlank()) {
+                        viewModel.login(userId, password) // Trigger login
                     } else {
-                        Toast.makeText(context, "Invalid User ID or Password", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Enter valid details", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black, // Set button background color to black
-                    contentColor = Color.White // Set button text color to white
+                    containerColor = Color.Black,
+                    contentColor = Color.White
                 )
             ) {
                 Text("Login")
@@ -130,6 +156,9 @@ fun LoginScreen(
         }
     }
 }
+
+
+
 
 
 

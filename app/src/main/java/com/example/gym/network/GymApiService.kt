@@ -1,8 +1,12 @@
 package com.example.gym.network
 
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface GymApiService {
-    @GET("getgymdata?mobile=8148602102&password=ags123")
-    suspend fun getData(): GymResponse
+    @GET("getgymdata") // Endpoint without query parameters
+    suspend fun getData(
+        @Query("mobile") mobile: String, // Dynamic mobile parameter
+        @Query("password") password: String // Dynamic password parameter
+    ): GymResponse
 }

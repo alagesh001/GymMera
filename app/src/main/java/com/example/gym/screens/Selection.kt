@@ -1,5 +1,6 @@
 package com.example.gym.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,15 +31,18 @@ import com.example.gym.AndroidViewModelProvider
 import com.example.gym.viewmodel.GymViewModel
 import com.example.gym.network.Gym
 import androidx.compose.runtime.getValue
+import com.example.gym.navgraph.LocalGymViewModel
 
 @Composable
 fun SelectionScreen(
     destination: (String, String) -> Unit,
-    viewModel: GymViewModel = viewModel(factory = AndroidViewModelProvider.Factory) // Use Hilt for dependency injection
+     // Use Hilt for dependency injection
 ) {
+    val viewModel = LocalGymViewModel.current // Access the ViewModel through CompositionLocal
     val gymState by viewModel.gymResponseState.collectAsState()
-    val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    Log.e("selection", "gymstate = ${gymState?.success}")
 
     Box(
         modifier = Modifier
@@ -47,12 +50,6 @@ fun SelectionScreen(
             .background(Color.White) // White background
     ) {
         when {
-            loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
             error != null -> {
                 Text(
                     text = "Error: ${error}",
@@ -61,7 +58,12 @@ fun SelectionScreen(
                 )
             }
 
-            gymState != null -> {
+            gymState == null -> {
+                // Show loading spinner or message while waiting for data
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            else -> {
                 GymCardList(
                     gyms = gymState!!.result,
                     onGymClick = destination // Pass the navigation lambda
@@ -71,9 +73,10 @@ fun SelectionScreen(
     }
 }
 
+
 @Composable
 fun GymCardList(
-    gyms: List<Gym>,
+    gyms: List<Gym>?,
     onGymClick: (String, String) -> Unit // Add a lambda for click handling
 ) {
     Column(
@@ -82,7 +85,7 @@ fun GymCardList(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        gyms.forEach { gym ->
+        gyms?.forEach { gym ->
             GymCard(
                 gym = gym,
                 onClick = onGymClick // Pass the lambda to GymCard
