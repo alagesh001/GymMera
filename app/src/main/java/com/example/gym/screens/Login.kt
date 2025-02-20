@@ -92,7 +92,7 @@ fun LoginScreen(
             .background(Color.White)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.gym_girl),
+            painter = painterResource(id = R.drawable.lscreenbg),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -163,7 +163,7 @@ fun LoginScreen(
 
 
 
-@Preview
+@Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     LoginScreen({})
