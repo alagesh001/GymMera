@@ -168,7 +168,7 @@ val placeholderGyms = listOf(
         gymName = "RJK Unisex Gym",
         location = "Mumbai",
         gymId = 69573478,
-        memberCount = 3
+        memberCount = 8
     ),
     Gym(
         id = 4,

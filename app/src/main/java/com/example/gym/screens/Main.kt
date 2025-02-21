@@ -1,6 +1,9 @@
 package com.example.gym.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +22,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gym.R
 
 @Composable
 fun MainScreen(
@@ -39,27 +47,40 @@ fun MainScreen(
         CardItem("My Offers", Icons.Default.Settings, Icons.Default.PersonAdd),
         CardItem("Gym Profile", Icons.Default.Settings, Icons.Default.PersonAdd)
     )
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Display Gym Name and Location at the top
-        Text(
-            text = "Welcome to $gymName - $location",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+        Image(
+            painter = painterResource(id = R.drawable.gym_pic),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+           // verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Display Gym Name and Location at the top
+            Text(
+                text = "Welcome to $gymName - $location",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
 
-        // Display the list of items
-        items.forEach { item ->
-            CardItemView(item)
+            // Display the list of items
+            items.forEach { item ->
+                CardItemView(item)
+            }
         }
     }
 }
@@ -67,13 +88,24 @@ fun MainScreen(
 
 @Composable
 fun CardItemView(item: CardItem) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .padding(8.dp)
+            .alpha(0.9f)
+        .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color(0xFF6A11CB), Color(0xFFFC8925)) // Purple to Blue
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+    ){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent), // Make Card background transparent
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -85,24 +117,25 @@ fun CardItemView(item: CardItem) {
                 text = item.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color.White
             )
             Row {
                 IconButton(onClick = { /* Handle settings icon click */ }) {
                     Icon(
                         imageVector = item.settingsIcon,
                         contentDescription = "Settings",
-                        tint = Color.Gray
+                        tint = Color.White
                     )
                 }
                 IconButton(onClick = { /* Handle add icon click */ }) {
                     Icon(
                         imageVector = item.addIcon,
                         contentDescription = "Add",
-                        tint = Color.Gray
+                        tint = Color.White
                     )
                 }
             }
+        }
         }
     }
 }
