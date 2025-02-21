@@ -36,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -100,58 +101,67 @@ fun LoginScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .imePadding()
-                .align(Alignment.BottomCenter)
-                .background(Color.White.copy(alpha = 0.9f), shape = RoundedCornerShape(16.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
         ) {
-            Text(
-                text = "Login",
-                style = MaterialTheme.typography.displayLarge,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                value = userId,
-                onValueChange = { userId = it },
-                label = { Text("Mobile Number") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                value = password,
-                onValueChange = { password = it.trim() },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation()
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-
-            ElevatedButton(
-                onClick = {
-                    if (userId.isNotBlank() && password.isNotBlank()) {
-                        viewModel.login(userId, password) // Trigger login
-                    } else {
-                        Toast.makeText(context, "Enter valid details", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.8f))
+                    .padding(16.dp)
             ) {
-                Text("Login")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Login",
+                        style = MaterialTheme.typography.displayLarge,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        value = userId,
+                        onValueChange = { userId = it },
+                        label = { Text("Mobile Number") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        value = password,
+                        onValueChange = { password = it.trim() },
+                        label = { Text("Password") },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    ElevatedButton(
+                        onClick = {
+                            if (userId.isNotBlank() && password.isNotBlank()) {
+                                viewModel.login(userId, password) // Trigger login
+                            } else {
+                                Toast.makeText(context, "Enter valid details", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Login")
+                    }
+                }
             }
         }
     }
